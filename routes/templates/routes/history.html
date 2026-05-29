@@ -1,0 +1,80 @@
+{% extends 'routes/base.html' %}
+{% load static %}
+
+{% block title %}RouteOptimizer — History{% endblock %}
+
+{% block content %}
+<div class="history-page container-fluid py-4 px-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="page-title">
+      <i class="bi bi-clock-history text-accent me-2"></i>Optimization History
+    </h4>
+    <a href="{% url 'index' %}" class="btn btn-sm btn-outline-accent">
+      <i class="bi bi-plus-circle me-1"></i>New Route
+    </a>
+  </div>
+
+  {% if tasks %}
+  <div class="table-responsive">
+    <table class="table table-dark table-hover align-middle history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Route Name</th>
+          <th>Algorithm</th>
+          <th>Points</th>
+          <th>Distance</th>
+          <th>Computed in</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr class="history-row fade-in" style="animation-delay: {{ forloop.counter0 }}00ms">
+          <td class="text-muted small">{{ task.id }}</td>
+          <td>
+            <strong class="text-white">{{ task.name }}</strong>
+          </td>
+          <td>
+            {% if task.algorithm == 'nn' %}
+              <span class="badge algo-badge algo-nn">Nearest Neighbor</span>
+            {% elif task.algorithm == '2opt' %}
+              <span class="badge algo-badge algo-2opt">2-Opt</span>
+            {% elif task.algorithm == 'aco' %}
+              <span class="badge algo-badge algo-aco">Ant Colony</span>
+            {% else %}
+              <span class="badge algo-badge algo-all">All Algorithms</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge bg-secondary">{{ task.points.count }}</span>
+          </td>
+          <td>
+            <span class="text-accent fw-semibold">{{ task.total_distance|floatformat:1 }} km</span>
+          </td>
+          <td class="text-muted small">{{ task.execution_time|floatformat:4 }} s</td>
+          <td class="text-muted small">{{ task.created_at|date:"d M Y H:i" }}</td>
+          <td>
+            <a href="{% url 'results' task.id %}" class="btn btn-xs btn-accent">
+              <i class="bi bi-eye me-1"></i>View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-history text-center py-5">
+    <i class="bi bi-inbox text-muted" style="font-size:3rem"></i>
+    <p class="text-muted mt-3 fs-5">No optimization tasks yet.</p>
+    <a href="{% url 'index' %}" class="btn btn-accent mt-2">
+      <i class="bi bi-map me-1"></i>Start Optimizing
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

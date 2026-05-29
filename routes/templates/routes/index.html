@@ -1,0 +1,143 @@
+{% extends 'routes/base.html' %}
+{% load static %}
+
+{% block title %}RouteOptimizer — Plan Your Route{% endblock %}
+
+{% block content %}
+<div class="app-layout">
+
+  <!-- ══════════════════════════════════════════════════
+       LEFT SIDEBAR
+  ══════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Add point form -->
+    <div class="sidebar-section">
+      <div class="section-header">
+        <i class="bi bi-plus-circle-fill text-accent"></i>
+        <h6 class="mb-0">Add Delivery Point</h6>
+      </div>
+
+      <form id="addPointForm" class="mt-3">
+        <div class="form-group mb-2">
+          <input type="text" id="pointName" class="form-control form-control-sm dark-input"
+                 placeholder="Point name (e.g. Warehouse A)" required />
+        </div>
+        <div class="form-group mb-2">
+          <input type="text" id="pointAddress" class="form-control form-control-sm dark-input"
+                 placeholder="Address (optional)" />
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <input type="number" id="pointLat" class="form-control form-control-sm dark-input"
+                   placeholder="Latitude" step="any" required />
+          </div>
+          <div class="col-6">
+            <input type="number" id="pointLon" class="form-control form-control-sm dark-input"
+                   placeholder="Longitude" step="any" required />
+          </div>
+        </div>
+        <div class="hint-text mb-3">
+          <i class="bi bi-cursor-fill me-1 text-accent"></i>
+          Click on the map to auto-fill coordinates
+        </div>
+        <button type="submit" class="btn btn-accent btn-sm w-100">
+          <i class="bi bi-pin-map-fill me-1"></i>Add Point
+        </button>
+      </form>
+    </div>
+
+    <hr class="sidebar-divider" />
+
+    <!-- Points list -->
+    <div class="sidebar-section flex-grow-1 overflow-auto">
+      <div class="section-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-list-ul text-accent"></i>
+          <h6 class="mb-0">Delivery Points</h6>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <span id="pointCount" class="badge badge-accent">0</span>
+          <button id="selectAllBtn" class="btn btn-xs btn-outline-accent" title="Select/Deselect all">All</button>
+        </div>
+      </div>
+
+      <ul class="point-list mt-2" id="pointList">
+        <li class="empty-state" id="emptyState">
+          <i class="bi bi-geo-alt text-muted fs-4"></i>
+          <p class="text-muted small mt-1">No points yet.<br/>Add one above or click the map.</p>
+        </li>
+      </ul>
+    </div>
+
+    <hr class="sidebar-divider" />
+
+    <!-- Optimize controls -->
+    <div class="sidebar-section">
+      <div class="section-header">
+        <i class="bi bi-lightning-fill text-orange"></i>
+        <h6 class="mb-0">Optimize Route</h6>
+      </div>
+
+      <form id="optimizeForm" class="mt-3">
+        <div class="mb-2">
+          <input type="text" id="routeName" class="form-control form-control-sm dark-input"
+                 placeholder="Route name (optional)" />
+        </div>
+        <div class="mb-3">
+          <select id="algorithmSelect" class="form-select form-select-sm dark-input">
+            <option value="nn">Nearest Neighbor (Fast)</option>
+            <option value="2opt">2-Opt (Better)</option>
+            <option value="aco">Ant Colony Optimization (Best)</option>
+            <option value="all">⚡ All Algorithms &amp; Compare</option>
+          </select>
+        </div>
+        <div id="selectedCount" class="hint-text mb-3">
+          <i class="bi bi-check-circle text-accent me-1"></i>
+          <span id="selCountText">0 points selected</span>
+        </div>
+        <button type="submit" id="optimizeBtn" class="btn btn-orange btn-sm w-100" disabled>
+          <i class="bi bi-lightning-fill me-1"></i>Optimize Route
+        </button>
+      </form>
+
+      <!-- Inline error -->
+      <div id="optimizeError" class="alert alert-danger alert-sm mt-2 d-none" role="alert"></div>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════════════════════════════════════
+       MAP
+  ══════════════════════════════════════════════════ -->
+  <div class="map-container">
+    <div id="map"></div>
+
+    <!-- Map overlay hint -->
+    <div class="map-hint" id="mapHint">
+      <i class="bi bi-cursor-fill me-1"></i>Click map to set coordinates
+    </div>
+
+    <!-- Loading spinner -->
+    <div class="map-spinner d-none" id="optimizeSpinner">
+      <div class="spinner-border text-accent" role="status"></div>
+      <span class="ms-2">Running algorithm…</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Loading toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+  <div id="liveToast" class="toast align-items-center text-bg-dark border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMsg"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'routes/js/main.js' %}"></script>
+{% endblock %}

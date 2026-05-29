@@ -1,0 +1,105 @@
+{% extends 'routes/base.html' %}
+{% load static %}
+
+{% block title %}RouteOptimizer — {{ task.name }}{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+{{ task_data|json_script:"taskDataEl" }}
+
+<div class="results-layout">
+
+  <!-- ══════════════════════════════════════════════════
+       TOP STATS BAR
+  ══════════════════════════════════════════════════ -->
+  <div class="stats-bar fade-in">
+    <a href="{% url 'index' %}" class="btn btn-sm btn-outline-accent me-3">
+      <i class="bi bi-arrow-left me-1"></i>Back to Map
+    </a>
+
+    <div class="stat-pill">
+      <i class="bi bi-geo-alt-fill text-accent"></i>
+      <span class="stat-label">Route</span>
+      <strong class="stat-value">{{ task.name }}</strong>
+    </div>
+
+    <div class="stat-pill">
+      <i class="bi bi-rulers text-accent"></i>
+      <span class="stat-label">Distance</span>
+      <strong class="stat-value" id="statDistance">{{ task.total_distance|floatformat:1 }} km</strong>
+    </div>
+
+    <div class="stat-pill">
+      <i class="bi bi-clock text-orange"></i>
+      <span class="stat-label">Computed in</span>
+      <strong class="stat-value">{{ task.execution_time|floatformat:4 }} s</strong>
+    </div>
+
+    <div class="stat-pill">
+      <i class="bi bi-cpu-fill text-orange"></i>
+      <span class="stat-label">Algorithm</span>
+      <strong class="stat-value">{{ task.get_algorithm_display }}</strong>
+    </div>
+
+    <div class="stat-pill">
+      <i class="bi bi-pin-map-fill text-accent"></i>
+      <span class="stat-label">Points</span>
+      <strong class="stat-value">{{ task.points.count }}</strong>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       MAP
+  ══════════════════════════════════════════════════ -->
+  <div class="results-map-wrap">
+    <div id="map" class="results-map"></div>
+
+    <!-- Algorithm switcher (only for "all") -->
+    {% if task.algorithm == 'all' %}
+    <div class="algo-switcher" id="algoSwitcher">
+      <span class="switcher-label">Show path:</span>
+      <button class="btn btn-xs btn-accent active" data-algo="best">Best</button>
+      <button class="btn btn-xs btn-outline-secondary" data-algo="nn">Nearest Neighbor</button>
+      <button class="btn btn-xs btn-outline-secondary" data-algo="2opt">2-Opt</button>
+      <button class="btn btn-xs btn-outline-secondary" data-algo="aco">Ant Colony</button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       COMPARISON (only when algorithm == "all")
+  ══════════════════════════════════════════════════ -->
+  {% if task.algorithm == 'all' %}
+  <div class="comparison-section fade-in">
+    <div class="container-fluid">
+      <h5 class="section-title mb-4">
+        <i class="bi bi-bar-chart-fill text-accent me-2"></i>Algorithm Comparison
+      </h5>
+      <div class="row g-4">
+
+        <!-- Metric cards -->
+        <div class="col-lg-4">
+          <div class="comparison-cards" id="comparisonCards"></div>
+        </div>
+
+        <!-- Chart -->
+        <div class="col-lg-8">
+          <div class="chart-card">
+            <canvas id="comparisonChart" height="200"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'routes/js/results.js' %}"></script>
+{% endblock %}
